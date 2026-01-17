@@ -1,0 +1,39 @@
+JOHN DOE
+Software Engineer
+Email: john.doe@example.com | Phone: +1-555-123-4567
+LinkedIn: linkedin.com/in/johndoe | GitHub: github.com/johndoe
+
+PROFESSIONAL SUMMARY
+Experienced software engineer with 5+ years of experience in full-stack development.
+Expert in Python, JavaScript, and cloud technologies.
+
+WORK EXPERIENCE
+
+Senior Software Engineer | Google | January 2020 - Present
+- Led development of microservices architecture serving 1M+ users
+- Improved system performance by 40% through optimization
+- Mentored team of 5 junior developers
+
+Software Engineer | Microsoft | June 2018 - December 2019
+- Developed RESTful APIs using Python and FastAPI
+- Implemented CI/CD pipelines with Docker and Kubernetes
+- Collaborated with cross-functional teams
+
+EDUCATION
+
+Bachelor of Science in Computer Science
+Massachusetts Institute of Technology (MIT)
+Graduated: 2018 | GPA: 3.8/4.0
+
+SKILLS
+
+Programming Languages: Python, JavaScript, TypeScript, Java, C++
+Frameworks: React, Node.js, Django, FastAPI, Spring Boot
+Databases: PostgreSQL, MongoDB, Redis
+Cloud & DevOps: AWS, Docker, Kubernetes, Jenkins, Terraform
+Tools: Git, Linux, Jira, Confluence
+
+CERTIFICATIONS
+- AWS Certified Solutions Architect
+- Kubernetes Administrator (CKA)
+

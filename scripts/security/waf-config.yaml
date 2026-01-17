@@ -1,0 +1,38 @@
+# WAF Configuration for NGINX Ingress
+# ModSecurity rules for protection against common attacks
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: modsecurity-config
+  namespace: ingress-nginx
+data:
+  enable-modsecurity: "true"
+  enable-owasp-core-rules: "true"
+  modsecurity-snippet: |
+    SecRuleEngine On
+    SecRequestBodyAccess On
+    SecResponseBodyAccess On
+    SecResponseBodyMimeType text/plain text/html text/xml application/json
+    SecDefaultAction "phase:1,log,auditlog,pass"
+    SecDefaultAction "phase:2,log,auditlog,pass"
+    
+    # Rate limiting
+    SecAction "id:1000,phase:1,nolog,pass,t:none,setvar:tx.rate_limit=100"
+    
+    # SQL Injection protection
+    SecRule REQUEST_URI "@detectSQLi" \
+        "id:1001,phase:2,deny,status:403,msg:'SQL Injection detected',logdata:'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"
+    
+    # XSS protection
+    SecRule REQUEST_URI "@detectXSS" \
+        "id:1002,phase:2,deny,status:403,msg:'XSS attack detected',logdata:'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"
+    
+    # File upload protection
+    SecRule REQUEST_FILENAME "@rx \.(php|jsp|asp|sh|bat|exe)$" \
+        "id:1003,phase:2,deny,status:403,msg:'Potentially malicious file upload detected'"
+    
+    # Request size limit
+    SecRequestBodyLimit 10485760
+    SecRequestBodyNoFilesLimit 1048576
+
