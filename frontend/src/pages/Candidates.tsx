@@ -15,7 +15,6 @@ import {
   IconButton,
   Button,
   CircularProgress,
-  Grid,
   FormControl,
   InputLabel,
   Select,
@@ -185,7 +184,7 @@ const Candidates: React.FC = () => {
   const selectedJob = jobs.find((j) => j.id === jobId);
 
   return (
-    <Box>
+    <Box sx={{ width: '100%', height: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">Candidates</Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -226,157 +225,150 @@ const Candidates: React.FC = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
-            <TableContainer component={Card}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Rank</TableCell>
-                    <TableCell>Candidate ID</TableCell>
-                    <TableCell>Score</TableCell>
-                    <TableCell>Skills</TableCell>
-                    <TableCell>Experience</TableCell>
-                    <TableCell>Education</TableCell>
-                    <TableCell>Shortlisted</TableCell>
-                    <TableCell>Interview</TableCell>
-                    <TableCell align="right">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {matchResults.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          No candidates found. Click "Match Candidates" to find matching candidates for this job.
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    matchResults.map((result) => {
-                      const interviewStatus = getInterviewStatus(result.candidate_id);
-                      const shortlisted = interviewStatus?.shortlisted || result.shortlisted || false;
-                      const interviewEnabled = interviewStatus?.interview_enabled || result.interview_enabled || false;
-                      const onlineEnabled = interviewStatus?.online_interview_enabled || result.online_interview_enabled || false;
-                      const updating = isUpdating(result.candidate_id);
+        <TableContainer component={Card} sx={{ width: '100%', overflowX: 'auto' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Rank</TableCell>
+                <TableCell>Candidate ID</TableCell>
+                <TableCell>Score</TableCell>
+                <TableCell>Skills</TableCell>
+                <TableCell>Experience</TableCell>
+                <TableCell>Education</TableCell>
+                <TableCell>Shortlisted</TableCell>
+                <TableCell>Interview</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {matchResults.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      No candidates found. Click "Match Candidates" to find matching candidates for this job.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                matchResults.map((result) => {
+                  const interviewStatus = getInterviewStatus(result.candidate_id);
+                  const shortlisted = interviewStatus?.shortlisted || result.shortlisted || false;
+                  const interviewEnabled = interviewStatus?.interview_enabled || result.interview_enabled || false;
+                  const onlineEnabled = interviewStatus?.online_interview_enabled || result.online_interview_enabled || false;
+                  const updating = isUpdating(result.candidate_id);
 
-                      return (
-                        <TableRow key={result.id} hover>
-                          <TableCell>
-                            <Chip label={`#${result.rank || 'N/A'}`} color="primary" size="small" />
-                          </TableCell>
-                          <TableCell>
-                            <Box>
-                              <Typography variant="body2" fontWeight="medium">
-                                {result.candidate_name || result.anonymized_id || result.candidate_id}
-                              </Typography>
-                              {result.resume_file_name && (
-                                <Typography variant="caption" color="text.secondary">
-                                  {result.resume_file_name}
-                                </Typography>
+                  return (
+                    <TableRow key={result.id} hover>
+                      <TableCell>
+                        <Chip label={`#${result.rank || 'N/A'}`} color="primary" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box>
+                          <Typography variant="body2" fontWeight="medium">
+                            {result.candidate_name || result.anonymized_id || result.candidate_id}
+                          </Typography>
+                          {result.resume_file_name && (
+                            <Typography variant="caption" color="text.secondary">
+                              {result.resume_file_name}
+                            </Typography>
+                          )}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={Number(result.overall_score)}
+                            sx={{ width: 100, height: 8, borderRadius: 4 }}
+                          />
+                          <Typography variant="body2">
+                            {Number(result.overall_score).toFixed(1)}%
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        {result.scores_json?.skills !== undefined
+                          ? `${result.scores_json.skills.toFixed(0)}%`
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        {result.scores_json?.experience !== undefined
+                          ? `${result.scores_json.experience.toFixed(0)}%`
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        {result.scores_json?.semantic_similarity !== undefined
+                          ? `${result.scores_json.semantic_similarity.toFixed(0)}%`
+                          : result.scores_json?.education !== undefined
+                          ? `${(result.scores_json.education * 100).toFixed(0)}%`
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title={shortlisted ? 'Shortlisted' : 'Not Shortlisted'}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Switch
+                              size="small"
+                              checked={shortlisted}
+                              disabled={updating}
+                              onChange={() => handleShortlistToggle(result.candidate_id, shortlisted)}
+                              color="primary"
+                            />
+                            {shortlisted ? (
+                              <CheckCircleIcon color="success" fontSize="small" />
+                            ) : (
+                              <CancelIcon color="disabled" fontSize="small" />
+                            )}
+                          </Box>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>
+                        {shortlisted ? (
+                          <Tooltip
+                            title={
+                              interviewEnabled
+                                ? onlineEnabled
+                                  ? 'Online Interview Enabled'
+                                  : 'Interview Enabled (Offline)'
+                                : 'Interview Disabled'
+                            }
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <Switch
+                                size="small"
+                                checked={interviewEnabled}
+                                disabled={updating}
+                                onChange={() => handleInterviewToggle(result.candidate_id, interviewEnabled, onlineEnabled)}
+                                color="primary"
+                              />
+                              {interviewEnabled && (
+                                <EventIcon
+                                  color={onlineEnabled ? 'primary' : 'action'}
+                                  fontSize="small"
+                                />
                               )}
                             </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <LinearProgress
-                                variant="determinate"
-                                value={Number(result.overall_score)}
-                                sx={{ width: 100, height: 8, borderRadius: 4 }}
-                              />
-                              <Typography variant="body2">
-                                {Number(result.overall_score).toFixed(1)}%
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            {result.scores_json?.skills !== undefined
-                              ? `${result.scores_json.skills.toFixed(0)}%`
-                              : 'N/A'}
-                          </TableCell>
-                          <TableCell>
-                            {result.scores_json?.experience !== undefined
-                              ? `${result.scores_json.experience.toFixed(0)}%`
-                              : 'N/A'}
-                          </TableCell>
-                          <TableCell>
-                            {result.scores_json?.semantic_similarity !== undefined
-                              ? `${result.scores_json.semantic_similarity.toFixed(0)}%`
-                              : result.scores_json?.education !== undefined
-                              ? `${(result.scores_json.education * 100).toFixed(0)}%`
-                              : 'N/A'}
-                          </TableCell>
-                          <TableCell>
-                            <Tooltip title={shortlisted ? 'Shortlisted' : 'Not Shortlisted'}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                <Switch
-                                  size="small"
-                                  checked={shortlisted}
-                                  disabled={updating}
-                                  onChange={() => handleShortlistToggle(result.candidate_id, shortlisted)}
-                                  color="primary"
-                                />
-                                {shortlisted ? (
-                                  <CheckCircleIcon color="success" fontSize="small" />
-                                ) : (
-                                  <CancelIcon color="disabled" fontSize="small" />
-                                )}
-                              </Box>
-                            </Tooltip>
-                          </TableCell>
-                          <TableCell>
-                            {shortlisted ? (
-                              <Tooltip
-                                title={
-                                  interviewEnabled
-                                    ? onlineEnabled
-                                      ? 'Online Interview Enabled'
-                                      : 'Interview Enabled (Offline)'
-                                    : 'Interview Disabled'
-                                }
-                              >
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                  <Switch
-                                    size="small"
-                                    checked={interviewEnabled}
-                                    disabled={updating}
-                                    onChange={() => handleInterviewToggle(result.candidate_id, interviewEnabled, onlineEnabled)}
-                                    color="primary"
-                                  />
-                                  {interviewEnabled && (
-                                    <EventIcon
-                                      color={onlineEnabled ? 'primary' : 'action'}
-                                      fontSize="small"
-                                    />
-                                  )}
-                                </Box>
-                              </Tooltip>
-                            ) : (
-                              <Typography variant="caption" color="text.secondary">
-                                Shortlist first
-                              </Typography>
-                            )}
-                          </TableCell>
-                          <TableCell align="right">
-                            <IconButton
-                              size="small"
-                              onClick={() => navigate(`/dashboard/candidates/${result.candidate_id}?jobId=${jobId}`)}
-                            >
-                              <VisibilityIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            {/* Score breakdown card will be added here when candidate selection is implemented */}
-          </Grid>
-        </Grid>
+                          </Tooltip>
+                        ) : (
+                          <Typography variant="caption" color="text.secondary">
+                            Shortlist first
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          size="small"
+                          onClick={() => navigate(`/dashboard/candidates/${result.candidate_id}?jobId=${jobId}`)}
+                        >
+                          <VisibilityIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
     </Box>
   );
