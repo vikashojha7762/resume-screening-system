@@ -25,7 +25,6 @@ import {
   Add as AddIcon,
   ArrowForward as ArrowForwardIcon,
   CheckCircle as CheckCircleIcon,
-  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { fetchJobs } from '../store/slices/jobsSlice';
@@ -76,9 +75,9 @@ const Dashboard: React.FC = () => {
       value:
         matchResults.length > 0
           ? (
-              matchResults.reduce((sum, r) => sum + Number(r.overall_score), 0) /
-              matchResults.length
-            ).toFixed(1)
+            matchResults.reduce((sum, r) => sum + Number(r.overall_score), 0) /
+            matchResults.length
+          ).toFixed(1)
           : '0.0',
       icon: <TrendingUpIcon />,
       color: '#9c27b0',
@@ -278,7 +277,7 @@ const Dashboard: React.FC = () => {
                             }
                             secondary={
                               <Typography variant="caption" color="text.secondary">
-                                {job.department || 'No department'} • {job.location || 'Location not specified'}
+                                Created {new Date(job.created_at).toLocaleDateString()}
                               </Typography>
                             }
                           />
@@ -360,8 +359,8 @@ const Dashboard: React.FC = () => {
                                     resume.status === 'processed'
                                       ? 'success'
                                       : resume.status === 'processing'
-                                      ? 'warning'
-                                      : 'default'
+                                        ? 'warning'
+                                        : 'default'
                                   }
                                   sx={{ height: 18, fontSize: '0.65rem' }}
                                 />
